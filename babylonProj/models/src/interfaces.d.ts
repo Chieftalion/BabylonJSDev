@@ -6,5 +6,6 @@ export interface SceneData {
   sky: Mesh;
   lightHemispheric: HemisphericLight;
   camera: ArcRotateCamera;
-  importMesh?: any; // 
+  importMesh?: any;
+  actionManager?: any;
 }
