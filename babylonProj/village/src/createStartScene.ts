@@ -245,24 +245,16 @@ function createTrees(scene: Scene) {
     const x = Math.random() * 100 - 50;
     const z = Math.random() * 100 - 50;
 
-    // --- SUPER TIGHT EXCLUSION ZONES ---
-
     // 1. CENTER FOUNTAIN
-    // Just enough space for the fountain mesh
     if (Math.abs(x) < 2.5 && Math.abs(z) < 2.5) continue;
 
     // 2. WEST ROAD (Horizontal)
-    // The houses sit at z=5 and z=-1.
-    // We protect ONLY the space between them (-1.5 to 5.5)
     if (x < 0 && z > -1.5 && z < 5.5) continue;
 
     // 3. SOUTH ROAD (Vertical)
-    // The houses sit at x=0.5 and x=5.5.
-    // We protect ONLY the space between them (0 to 6)
     if (z < 0 && x > 0 && x < 6) continue;
 
     // 4. DIAGONAL ROAD (Top Right)
-    // Very tight diagonal strip (Distance of 3.5)
     if (x > 0 && z > 0 && Math.abs(x - z) < 3.5) continue;
 
 
@@ -321,8 +313,6 @@ function createFountain(scene: Scene) {
 function createFountainWater(scene: Scene, fountain: Mesh) {
   const particleSystem = new ParticleSystem("particles", 2000, scene);
 
-  // FIX 1: Use a valid online texture for the water drop (Flare)
-  // This ensures it doesn't look like a pink square if your local file is missing
   particleSystem.particleTexture = new Texture("https://raw.githubusercontent.com/BabylonJS/Babylon.js/master/packages/tools/playground/public/textures/flare.png", scene);
 
   // Emitter location (Top of fountain)
@@ -330,25 +320,18 @@ function createFountainWater(scene: Scene, fountain: Mesh) {
   particleSystem.minEmitBox = new Vector3(-0.05, 0, -0.05);
   particleSystem.maxEmitBox = new Vector3(0.05, 0, 0.05);
 
-  // FIX 2: Colors - Blue and White with Alpha (Transparency)
-  // Color 1: White/Light Blue (Start)
   particleSystem.color1 = new Color4(0.9, 0.9, 1.0, 1.0);
-  // Color 2: Deep Blue (Middle)
   particleSystem.color2 = new Color4(0.2, 0.5, 1.0, 1.0);
-  // Color Dead: Transparent (End) - This makes it fade out
   particleSystem.colorDead = new Color4(0, 0, 0.2, 0.0);
 
-  // Physics
   particleSystem.minSize = 0.05;
   particleSystem.maxSize = 0.2;
   particleSystem.minLifeTime = 0.5;
   particleSystem.maxLifeTime = 1.5;
   particleSystem.emitRate = 1000;
 
-  // Gravity (Pull water down)
   particleSystem.gravity = new Vector3(0, -9.81, 0);
 
-  // Direction (Spray outwards slightly)
   particleSystem.direction1 = new Vector3(-1, 4, 1);
   particleSystem.direction2 = new Vector3(1, 4, -1);
 
