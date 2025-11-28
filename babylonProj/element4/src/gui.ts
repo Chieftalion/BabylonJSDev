@@ -8,10 +8,10 @@ import {
   Rectangle,
 } from "@babylonjs/gui/2D";
 
-var text1!: TextBlock; // recieves external messages
-var text2!: TextBlock; // recieves external messages
-var text3!: TextBlock; // recieves external messages
-var text4!: TextBlock; // recieves external messages
+var text1!: TextBlock;
+var text2!: TextBlock;
+var text3!: TextBlock;
+var text4!: TextBlock;
 var heading1!: TextBlock;
 
 function createSceneButton(
@@ -19,7 +19,6 @@ function createSceneButton(
   index: string,
   x: string,
   y: string
-  //advtex: { addControl: (arg0: Button) => void }
 ) {
   var button: Button = Button.CreateSimpleButton(name, index);
   button.left = x;
@@ -70,8 +69,7 @@ function createTextBlock(
 }
 
 export function gui(scene: Scene): void {
-  // add a button
-  //https://doc.babylonjs.com/typedoc/modules/BABYLON.GUI  // GUI API
+
 
   let advancedTexture: AdvancedDynamicTexture =
     AdvancedDynamicTexture.CreateFullscreenUI("myUI", true, scene);
@@ -80,12 +78,8 @@ export function gui(scene: Scene): void {
     "Click Me!",
     "0px",
     "0px"
-    //advancedTexture
   );
-  //advancedTexture.addControl(button1); // button 1 could be added to the scene or grid
 
-  //add text block
-  //https://playground.babylonjs.com/#2ARI2W#10 //high resolution text//
   scene.getEngine().setHardwareScalingLevel(1 / window.devicePixelRatio);
   advancedTexture.rootContainer.scaleX = window.devicePixelRatio;
   advancedTexture.rootContainer.scaleY = window.devicePixelRatio;
@@ -95,11 +89,6 @@ export function gui(scene: Scene): void {
   text2 = createTextBlock("text2", "Debug", "1px", "1px");
   text3 = createTextBlock("text3", "Debug", "1px", "1px");
   text4 = createTextBlock("text4", "Debug", "1px", "1px");
-
-  // advancedTexture.addControl(this.heading1); // text1 block could be added to the scene or grid
-
-  //https://doc.babylonjs.com/features/featuresDeepDive/gui/gui#grid
-  // Create a grid, Pointer will then only apply to the grid and not the whole screen.
 
   const grid = new Grid();
   grid.addColumnDefinition(100, true);
@@ -111,11 +100,10 @@ export function gui(scene: Scene): void {
   grid.addRowDefinition(50, true);
   grid.addRowDefinition(50, true);
 
-  // This rect will be on first row and second column
   const rect1 = new Rectangle();
-  rect1.background = "#76d56e88"; //rgba
+  rect1.background = "#76d56e88";
   rect1.thickness = 0;
-  rect1.addControl(heading1); // rect is a container which can contain other controls
+  rect1.addControl(heading1);
   const rect2 = new Rectangle();
   rect2.background = "#60955b88";
   rect2.thickness = 0;
@@ -123,11 +111,9 @@ export function gui(scene: Scene): void {
   const rect3 = new Rectangle();
   rect3.background = "#76d56e88";
   rect3.thickness = 0;
-  //empty rect
   const rect4 = new Rectangle();
   rect4.background = "#60955b88";
   rect4.thickness = 0;
-  //empty rect
   const rect5 = new Rectangle();
   rect5.background = "#76d56e88";
   rect5.thickness = 0;
@@ -157,11 +143,7 @@ export function gui(scene: Scene): void {
   advancedTexture.addControl(grid);
 
   scene.registerBeforeRender(() => {
-    // cant get to gui
-    // let mystash = scene.getExternalData("stash") as { [key: string]: string };
-    // try { text1.text = mystash.message; } catch {}
-    // try { text2.text = mystash.x; } catch {}// Desired direction
-    // try { text3.text = mystash.z; } catch {}// Desired direction
+
   });
 }
 
@@ -181,6 +163,5 @@ export function setText(newtext: string, index: number) {
       break;
 
     default:
-    // code block
   }
 }

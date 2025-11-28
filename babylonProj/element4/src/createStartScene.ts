@@ -1,157 +1,167 @@
-//import "@babylonjs/core/Debug/debugLayer";
-//import "@babylonjs/inspector";
+import "@babylonjs/core/Debug/debugLayer";
+import "@babylonjs/inspector";
 import "@babylonjs/loaders/glTF/2.0";
 import HavokPhysics, { HavokPhysicsWithBindings } from "@babylonjs/havok";
 import {
   Scene,
   ArcRotateCamera,
-  AssetsManager,
   Vector3,
   HemisphericLight,
   MeshBuilder,
   Mesh,
-  Camera,
-  Engine,
-  HavokPlugin,
   PhysicsAggregate,
   PhysicsShapeType,
   Color3,
   StandardMaterial,
   Texture,
+  Engine,
+  HavokPlugin,
+  AssetsManager,
+  DirectionalLight,
+  ShadowGenerator,
+  CubeTexture
 } from "@babylonjs/core";
 
-
-function createLight(scene: Scene) {
-  const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
-  light.intensity = 0.7;
-  return light;
-}
+import { createCharacterController } from "./createCharacterController";
 
 function createGround(scene: Scene) {
-  let ground = MeshBuilder.CreateGround(
-    "ground",
-    { width: 16, height: 16 },
-    scene
-  );
-  
-    // Create a static box shape.
+  let ground = MeshBuilder.CreateGround("ground", { width: 60, height: 60 }, scene);
+
+  let groundMat = new StandardMaterial("groundMat", scene);
+  groundMat.diffuseTexture = new Texture("/assets/environments/valleygrass.png", scene);
+  (groundMat.diffuseTexture as Texture).uScale = 15;
+  (groundMat.diffuseTexture as Texture).vScale = 15;
+  groundMat.specularColor = new Color3(0, 0, 0);
+
+  ground.material = groundMat;
+  ground.receiveShadows = true;
+
   let groundAggregate = new PhysicsAggregate(ground, PhysicsShapeType.BOX, { mass: 0 }, scene);
+
   return groundAggregate;
 }
 
+function createSkybox(scene: Scene) {
+  const skybox = MeshBuilder.CreateBox("skyBox", { size: 150 }, scene);
+  const skyboxMaterial = new StandardMaterial("skyBox", scene);
+  skyboxMaterial.backFaceCulling = false;
+  skyboxMaterial.reflectionTexture = new CubeTexture("/assets/textures/skybox/skybox", scene);
+  skyboxMaterial.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
+  skyboxMaterial.diffuseColor = new Color3(0, 0, 0);
+  skyboxMaterial.specularColor = new Color3(0, 0, 0);
+  skybox.material = skyboxMaterial;
+}
+
+function createLight(scene: Scene) {
+  const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
+  light.intensity = 0.6;
+  return light;
+}
+
 function createArcRotateCamera(scene: Scene) {
-  let camAlpha = -Math.PI / 2,
-    camBeta = Math.PI / 2.5,
-    camDist = 10,
-    camTarget = new Vector3(0, 0, 0);
-  let camera = new ArcRotateCamera(
-    "camera1",
-    camAlpha,
-    camBeta,
-    camDist,
-    camTarget,
-    scene
-  );
+  let camera = new ArcRotateCamera("camera1", -Math.PI / 2, Math.PI / 2.5, 12, new Vector3(0, 0, 0), scene);
+
+  camera.useAutoRotationBehavior = false;
+  camera.lowerBetaLimit = 0.5;
+  camera.upperBetaLimit = 1.3;
+  camera.lowerRadiusLimit = 5;
+  camera.upperRadiusLimit = 20;
+
   camera.attachControl(true);
   return camera;
 }
 
-function createBox1(scene: Scene) {
-  let box = MeshBuilder.CreateBox("box", { width: 1, height: 1 }, scene);
-  box.position.x = -1;
-  box.position.y = 3;
-  box.position.z = 1;
+function createPhysicsPlayground(scene: Scene, shadowGenerator: ShadowGenerator) {
+  const woodMat = new StandardMaterial("woodMat", scene);
+  woodMat.diffuseTexture = new Texture("/assets/textures/wood.jpg", scene);
+  const stoneMat = new StandardMaterial("stoneMat", scene);
+  stoneMat.diffuseTexture = new Texture("/assets/textures/cubehouse.png", scene);
+  const redMat = new StandardMaterial("redMat", scene);
+  redMat.diffuseColor = new Color3(1, 0, 0);
 
-  var texture = new StandardMaterial("reflective", scene);
-  texture.ambientTexture = new Texture(
-    "/assets/textures/wood.jpg",
-    scene
-  );
-  texture.diffuseColor = new Color3(1, 1, 1);
-  box.material = texture;
-  let box1Aggregate = new PhysicsAggregate(box, PhysicsShapeType.BOX, {mass: 0.2, restitution:0.1, friction:0.4}, scene);
-  box1Aggregate.body.setCollisionCallbackEnabled(true);
-  return box1Aggregate;
+  const ramp = MeshBuilder.CreateBox("ramp", { width: 6, height: 0.2, depth: 12 }, scene);
+  ramp.position = new Vector3(10, 3, 10);
+  ramp.rotation.x = -Math.PI / 6;
+  ramp.material = woodMat;
+  ramp.receiveShadows = true;
+  shadowGenerator.addShadowCaster(ramp);
+  new PhysicsAggregate(ramp, PhysicsShapeType.BOX, { mass: 0, friction: 0.2 }, scene);
+
+  for (let i = 0; i < 6; i++) {
+    const pin = MeshBuilder.CreateCylinder("pin", { height: 2, diameter: 0.5 }, scene);
+    pin.position = new Vector3(8 + (i * 0.8), 0.5, 3);
+    pin.material = redMat;
+    shadowGenerator.addShadowCaster(pin);
+    new PhysicsAggregate(pin, PhysicsShapeType.CYLINDER, { mass: 0.5, restitution: 0.5 }, scene);
+  }
+
+  const ball = MeshBuilder.CreateSphere("bowlingBall", { diameter: 1.5 }, scene);
+  ball.position = new Vector3(10, 7, 13);
+  ball.material = redMat;
+  shadowGenerator.addShadowCaster(ball);
+  new PhysicsAggregate(ball, PhysicsShapeType.SPHERE, { mass: 5, restitution: 0.5, friction: 0.2 }, scene);
+
+  for (let y = 0; y < 4; y++) {
+    for (let x = 0; x < 4; x++) {
+      const brick = MeshBuilder.CreateBox("brick", { width: 1.5, height: 1, depth: 1 }, scene);
+      brick.position = new Vector3(-10 + (x * 1.6), 0.5 + (y * 1.1), 5);
+      brick.material = stoneMat;
+      shadowGenerator.addShadowCaster(brick);
+      brick.receiveShadows = true;
+      new PhysicsAggregate(brick, PhysicsShapeType.BOX, { mass: 0.5 }, scene);
+    }
+  }
 }
 
-function createBox2(scene: Scene) {
-  let box = MeshBuilder.CreateBox("box", { width: 1, height: 1 }, scene);
-  box.position.x = -0.7;
-  box.position.y = 5;
-  box.position.z = 1;
-
-  var texture = new StandardMaterial("reflective", scene);
-  texture.ambientTexture = new Texture(
-    "/assets/textures/wood.jpg",
-    scene
-  );
-  texture.diffuseColor = new Color3(1, 1, 1);
-  box.material = texture;
-  let box2Aggregate = new PhysicsAggregate(box, PhysicsShapeType.BOX, {mass: 0.2, restitution:0.1, friction:0.4}, scene);
-  box2Aggregate.body.setCollisionCallbackEnabled(true);
-  return box2Aggregate;
-}
-
-function addAssets(scene: Scene) {
-  // add assets here
+function addAssets(scene: Scene, shadowGenerator: ShadowGenerator) {
   const assetsManager = new AssetsManager(scene);
-  const tree1 = assetsManager.addMeshTask(
-    "tree1 task",
-    "",
-    "/assets/nature/gltf/",
-    "CommonTree_1.gltf"
-  );
-  tree1.onSuccess = function (task) {
-    const root = task.loadedMeshes[0];
-    root.position = new Vector3(3, 0, 2);
-    root.scaling = new Vector3(0.5, 0.5, 0.5);
-    // Ensure all child meshes are visible
-    task.loadedMeshes.forEach((mesh: any) => {
-      mesh.isVisible = true;
+
+  const rockTask = assetsManager.addMeshTask("loadRock", "", "/assets/nature/glTF/", "Rock_Medium_1.gltf");
+  rockTask.onSuccess = function (task: any) {
+    const rockRoot = task.loadedMeshes[0];
+    rockRoot.setEnabled(false);
+    const positions = [new Vector3(15, 0, -5), new Vector3(12, 0, -8), new Vector3(16, 0, 2)];
+    positions.forEach((pos, index) => {
+      const rock = rockRoot.clone("rock_" + index, null);
+      rock.setEnabled(true);
+      rock.position = pos;
+      rock.scaling = new Vector3(3, 3, 3);
+      shadowGenerator.addShadowCaster(rock);
+      new PhysicsAggregate(rock, PhysicsShapeType.MESH, { mass: 0, friction: 0.8 }, scene);
     });
-    //new PhysicsAggregate(root, PhysicsShapeType.MESH, {mass: 0}, scene);
-    
-    // Clone tree1
-    const tree1Clone = root.clone("tree1_clone", null);
-    tree1Clone!.position = new Vector3(0, 0, 5);
-    //new PhysicsAggregate(tree1Clone!, PhysicsShapeType.MESH, {mass: 0}, scene);
   };
 
-  const tree2 = assetsManager.addMeshTask(
-    "tree1 task",
-    "",
-    "/assets/nature/gltf/",
-    "CommonTree_2.gltf"
-  );
-  tree2.onSuccess = function (task) {
-    task.loadedMeshes[0].position = new Vector3(0, 0, 2);
-    task.loadedMeshes[0].scaling = new Vector3(0.5, 0.5, 0.5);
-    // Clone tree2
-    const tree2Clone = task.loadedMeshes[0].clone("tree2_clone", null);
-    tree2Clone!.position = new Vector3(-3, 0, 5);
+  const pineTask = assetsManager.addMeshTask("loadPine", "", "/assets/nature/glTF/", "Pine_1.gltf");
+  pineTask.onSuccess = function (task: any) {
+    const pineRoot = task.loadedMeshes[0];
+    pineRoot.setEnabled(false);
+    for (let i = 0; i < 30; i++) {
+      let x = Math.random() * 50 - 25;
+      let z = Math.random() * 50 - 25;
+      if (Math.abs(x) < 12 && Math.abs(z) < 12) continue;
+      const tree = pineRoot.clone("pine_" + i, null);
+      tree.setEnabled(true);
+      tree.position = new Vector3(x, 0, z);
+      tree.scaling = new Vector3(0.8, 0.8, 0.8);
+      shadowGenerator.addShadowCaster(tree);
+    }
   };
 
-  const tree3 = assetsManager.addMeshTask(
-    "tree1 task",
-    "",
-    "/assets/nature/gltf/",
-    "CommonTree_3.gltf"
-  );
-  tree3.onSuccess = function (task) {
-    task.loadedMeshes[0].position = new Vector3(-3, 0, 2);
-    task.loadedMeshes[0].scaling = new Vector3(0.5, 0.5, 0.5);
-    // Clone tree3
-    const tree3Clone = task.loadedMeshes[0].clone("tree3_clone", null);
-    tree3Clone!.position = new Vector3(3, 0, 5);
+  const flowerTask = assetsManager.addMeshTask("loadFlower", "", "/assets/nature/glTF/", "Flower_4_Single.gltf");
+  flowerTask.onSuccess = function (task: any) {
+    const flowerRoot = task.loadedMeshes[0];
+    flowerRoot.setEnabled(false);
+    for (let i = 0; i < 15; i++) {
+      let x = Math.random() * 50 - 25;
+      let z = Math.random() * 50 - 25;
+      if (Math.abs(x) < 10 && Math.abs(z) < 10) continue;
+      const flower = flowerRoot.clone("flower_" + i, null);
+      flower.setEnabled(true);
+      flower.position = new Vector3(x, 0, z);
+      flower.scaling = new Vector3(1.5, 1.5, 1.5);
+    }
   };
 
-  assetsManager.onTaskErrorObservable.add(function (task) {
-    console.log(
-      "task failed",
-      task.errorObject.message,
-      task.errorObject.exception
-    );
-  });
   return assetsManager;
 }
 
@@ -161,31 +171,29 @@ export default async function createStartScene(engine: Engine) {
     scene: Scene;
     light?: HemisphericLight;
     ground?: PhysicsAggregate;
-    camera?: Camera;
-    box1?:PhysicsAggregate;
-    box2?:PhysicsAggregate;
+    camera?: ArcRotateCamera;
   }
 
   let that: SceneData = { scene: new Scene(engine) };
-
-  let initializedHavok: any;
-
-  HavokPhysics().then((havok) => {
-    initializedHavok = havok;
-  });
 
   const havokInstance: HavokPhysicsWithBindings = await HavokPhysics();
   const hk: HavokPlugin = new HavokPlugin(true, havokInstance);
   that.scene.enablePhysics(new Vector3(0, -9.81, 0), hk);
 
-  //that.scene.debugLayer.show();
-
   that.light = createLight(that.scene);
+  const dirLight = new DirectionalLight("dirLight", new Vector3(-1, -2, -1), that.scene);
+  dirLight.position = new Vector3(20, 40, 20);
+  const shadowGenerator = new ShadowGenerator(1024, dirLight);
+  shadowGenerator.useBlurExponentialShadowMap = true;
+
+  createSkybox(that.scene);
   that.ground = createGround(that.scene);
-  that.camera = createArcRotateCamera(that.scene);
-  that.box1 = createBox1(that.scene);
-  that.box2 = createBox2(that.scene);
-  const assetsManager = addAssets(that.scene);
+  createPhysicsPlayground(that.scene, shadowGenerator);
+  const assetsManager = addAssets(that.scene, shadowGenerator);
   assetsManager.load();
+
+  that.camera = createArcRotateCamera(that.scene);
+  createCharacterController(that.scene, that.camera, shadowGenerator);
+
   return that;
 }

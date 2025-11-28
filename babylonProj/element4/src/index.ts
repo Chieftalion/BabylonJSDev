@@ -1,7 +1,7 @@
 import { Engine } from "@babylonjs/core";
 import createStartScene from "./createStartScene";
 import './main.css';
-import {createCharacterController} from "./createCharacterController";
+import { createCharacterController } from "./createCharacterController";
 import { gui } from "./gui";
 import { setupCollisions } from "./collisions";
 import { SceneData } from "./interfaces";
@@ -17,11 +17,9 @@ document.body.appendChild(canvas);
 let eng = new Engine(canvas, true, {}, true);
 
 (async function main() {
-    const startScene = await createStartScene(eng);
-    createCharacterController(startScene.scene);
-    setupCollisions(startScene);
-    gui(startScene.scene);
-    eng.runRenderLoop(() => {
-        startScene.scene.render();
-    });
+  const startScene = await createStartScene(eng);
+  gui(startScene.scene);
+  eng.runRenderLoop(() => {
+    startScene.scene.render();
+  });
 })();
