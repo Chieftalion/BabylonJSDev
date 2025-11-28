@@ -22,7 +22,7 @@ import {
   Color4,
   ParticleSystem
 } from "@babylonjs/core";
-import { create } from "domain";
+//import { create } from "domain";
 
 function createTerrain(scene: Scene) {
   const largeGroundMat = new StandardMaterial("largeGroundMat");
@@ -159,23 +159,29 @@ function createHouses(scene: Scene, style: number) {
     const houses: Nullable<Mesh>[] = [];
     // first two houses are original meshes
     houses[0] = createHouse(scene, 1);
-    houses[0]!.rotation.y = -Math.PI / 16;
-    houses[0]!.position.x = -6.8;
-    houses[0]!.position.z = 2.5;
+    houses[0]!.rotation.y = -Math.PI / 10;
+    houses[0]!.position.x = -3;
+    houses[0]!.position.z = 3;
 
     houses[1] = createHouse(scene, 2);
-    houses[1]!.rotation.y = -Math.PI / 16;
-    houses[1]!.position.x = -4.5;
-    houses[1]!.position.z = 3;
+    houses[1]!.rotation.y = -Math.PI / 10;
+    houses[1]!.position.x = -4.75;
+    houses[1]!.position.z = 2.5;
 
     const ihouses: InstancedMesh[] = [];
     const places: number[][] = []; //each entry is an array [house type, rotation, x, z]
 
     // on north (western)
+    places.push([2, -Math.PI / 4, 7.5, 7.25]);
+    places.push([2, -Math.PI / 3, 6.25, 5.4]);
+    places.push([2, -Math.PI / 3, 5, 3.25]);
     places.push([1, Math.PI / 2, 4.1, -1]);
     places.push([2, Math.PI / 2, 4.1, 0.75]);
     places.push([2, Math.PI / 2, 4.1, -2.8]);
     places.push([2, Math.PI / 2, 4.1, -5]);
+    places.push([1, Math.PI / 2, 4.1, -6.75]);
+    places.push([2, Math.PI / 2, 4.1, -8.5]);
+    places.push([2, Math.PI / 2, 4.1, -10.75]);
 
     // on north (eastern)
     places.push([2, Math.PI / 2, 1.7, -1]);
@@ -183,13 +189,33 @@ function createHouses(scene: Scene, style: number) {
     places.push([2, Math.PI / 2, 1.7, -3.2]);
     places.push([1, Math.PI / 2, 1.7, -5]);
     places.push([2, Math.PI / 2, 1.7, -6.8]);
+    places.push([2, Math.PI / 2, 1.7, -9]);
+    places.push([1, Math.PI / 2, 1.7, -10.75]);
 
     // on east (upper)
     places.push([2, -Math.PI / 10, 0.5, 1.3]);
     places.push([1, -Math.PI / 10, -1.25, 0.8]);
     places.push([2, -Math.PI / 10, -3, 0.2]);
+    places.push([2, -Math.PI / 10, -5.25, -0.5]);
+    places.push([1, -Math.PI / 10, -7, -1]);
+    places.push([2, -Math.PI / 10, -9, -1.5]);
 
+    // on east (lower)
+    places.push([2, -Math.PI / 10, 1, 4.25]);
+    places.push([2, -Math.PI / 10, -1.25, 3.5]);
+    places.push([2, -Math.PI / 10, -7, 1.75]);
+    places.push([1, -Math.PI / 10, -8.75, 1.25]);
 
+    // on south (eastern)
+    places.push([1, Math.PI / 2, 2, 5]);
+    places.push([2, Math.PI / 2, 2.15, 6.75]);
+    places.push([2, Math.PI / 2, 2.15, 9.05]);
+
+    // on south-west
+    places.push([2, -Math.PI / 4, 5.25, 8]);
+    places.push([2, -Math.PI / 4, 6.75, 9.75]);
+    places.push([2, Math.PI / 2, 4.5, 8]);
+    places.push([1, Math.PI / 2, 4.5, 9.75]);
 
 
     for (let i = 0; i < places.length; i++) {
@@ -215,7 +241,32 @@ function createTrees(scene: Scene) {
     scene
   );
 
-  const plantTree = (x: number, z: number) => {
+  for (let i = 0; i < 2000; i++) { // Increased count slightly to fill gaps
+    const x = Math.random() * 100 - 50;
+    const z = Math.random() * 100 - 50;
+
+    // --- SUPER TIGHT EXCLUSION ZONES ---
+
+    // 1. CENTER FOUNTAIN
+    // Just enough space for the fountain mesh
+    if (Math.abs(x) < 2.5 && Math.abs(z) < 2.5) continue;
+
+    // 2. WEST ROAD (Horizontal)
+    // The houses sit at z=5 and z=-1.
+    // We protect ONLY the space between them (-1.5 to 5.5)
+    if (x < 0 && z > -1.5 && z < 5.5) continue;
+
+    // 3. SOUTH ROAD (Vertical)
+    // The houses sit at x=0.5 and x=5.5.
+    // We protect ONLY the space between them (0 to 6)
+    if (z < 0 && x > 0 && x < 6) continue;
+
+    // 4. DIAGONAL ROAD (Top Right)
+    // Very tight diagonal strip (Distance of 3.5)
+    if (x > 0 && z > 0 && Math.abs(x - z) < 3.5) continue;
+
+
+    // --- PLANT TREE ---
     const tree = new Sprite("tree", spriteManagerTrees);
     tree.position.x = x;
     tree.position.z = z;
@@ -224,14 +275,6 @@ function createTrees(scene: Scene) {
     const scale = 0.8 + Math.random() * 0.7;
     tree.width = scale;
     tree.height = scale;
-  };
-
-  for (let i = 0; i < 500; i++) {
-    plantTree(Math.random() * -30, Math.random() * 20 + 8);
-  }
-
-  for (let i = 0; i < 500; i++) {
-    plantTree(Math.random() * 25 + 7, Math.random() * -35 + 8);
   }
 }
 
