@@ -10,8 +10,7 @@ import {
   Quaternion,
   PhysicsAggregate,
   PhysicsShapeType,
-  ShadowGenerator,
-  Skeleton
+  ShadowGenerator
 } from "@babylonjs/core";
 
 export function createCharacterController(scene: Scene, camera: ArcRotateCamera, shadowGenerator: ShadowGenerator) {
@@ -32,10 +31,11 @@ export function createCharacterController(scene: Scene, camera: ArcRotateCamera,
       shadowGenerator.addShadowCaster(mesh, true);
       camera.lockedTarget = mesh;
 
+      // Physics Body (Capsule)
       let playerAgg = new PhysicsAggregate(mesh, PhysicsShapeType.CAPSULE, { mass: 1, friction: 0, restitution: 0 }, scene);
-      playerAgg.body.setMassProperties({ inertia: new Vector3(0, 0, 0) });
-      playerAgg.body.setAngularVelocity(Vector3.Zero());
+      playerAgg.body.setMassProperties({ inertia: new Vector3(0, 0, 0) }); // Lock rotation
 
+      // Animations
       skeleton.animationPropertiesOverride = new AnimationPropertiesOverride();
       skeleton.animationPropertiesOverride.enableBlending = true;
       skeleton.animationPropertiesOverride.blendingSpeed = 0.05;
@@ -44,14 +44,14 @@ export function createCharacterController(scene: Scene, camera: ArcRotateCamera,
       let walkRange = skeleton.getAnimationRange("YBot_Walk");
       let idleRange = skeleton.getAnimationRange("YBot_Idle");
 
-      let isWalking = false;
-
-      if (idleRange) scene.beginAnimation(skeleton, idleRange.from, idleRange.to, true);
+      let animating: boolean = false;
+      let currentAnim: any = null;
 
       scene.onBeforeRenderObservable.add(() => {
         let keydown = false;
         const speed = 6.0;
 
+        // Camera Directions
         const forward = camera.getForwardRay().direction;
         forward.y = 0;
         forward.normalize();
@@ -67,30 +67,27 @@ export function createCharacterController(scene: Scene, camera: ArcRotateCamera,
         if (keyDownMap["KeyD"] || keyDownMap["ArrowRight"]) { moveVector.addInPlace(right); keydown = true; }
         if (keyDownMap["KeyA"] || keyDownMap["ArrowLeft"]) { moveVector.subtractInPlace(right); keydown = true; }
 
-        const currentVelocity = playerAgg.body.getLinearVelocity();
-
+        // Physics Movement
         if (keydown && moveVector.length() > 0) {
           moveVector.normalize().scaleInPlace(speed);
+          playerAgg.body.setLinearVelocity(new Vector3(moveVector.x, -4, moveVector.z));
 
-          playerAgg.body.setLinearVelocity(new Vector3(moveVector.x, currentVelocity.y, moveVector.z));
-
-          let targetRotation = Math.atan2(moveVector.x, moveVector.z);
-
+          // Rotate Body
+          const targetRotation = Math.atan2(moveVector.x, moveVector.z);
           mesh.rotationQuaternion = Quaternion.Slerp(
             mesh.rotationQuaternion || Quaternion.Identity(),
             Quaternion.FromEulerAngles(0, targetRotation, 0),
-            0.25
+            0.15
           );
         } else {
-          playerAgg.body.setLinearVelocity(new Vector3(0, currentVelocity.y, 0));
+          playerAgg.body.setLinearVelocity(new Vector3(0, -4, 0));
         }
 
-        if (keydown && !isWalking) {
-          isWalking = true;
-          if (walkRange) scene.beginAnimation(skeleton, walkRange.from, walkRange.to, true);
-        } else if (!keydown && isWalking) {
-          isWalking = false;
-          if (idleRange) scene.beginAnimation(skeleton, idleRange.from, idleRange.to, true);
+        // Animation
+        let desiredAnim = keydown ? walkRange : idleRange;
+        if (currentAnim !== desiredAnim) {
+          currentAnim = desiredAnim;
+          scene.beginAnimation(skeleton, currentAnim.from, currentAnim.to, true);
         }
       });
     }

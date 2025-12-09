@@ -1,9 +1,6 @@
 import { Engine } from "@babylonjs/core";
 import createStartScene from "./createStartScene";
 import './main.css';
-import { createCharacterController } from "./createCharacterController";
-import { gui } from "./gui";
-import { setupCollisions } from "./collisions";
 import { SceneData } from "./interfaces";
 
 const CanvasName = "renderCanvas";
@@ -18,7 +15,7 @@ let eng = new Engine(canvas, true, {}, true);
 
 (async function main() {
   const startScene = await createStartScene(eng);
-  gui(startScene.scene);
+  // gui(startScene.scene); // Removed to hide the menu
   eng.runRenderLoop(() => {
     startScene.scene.render();
   });

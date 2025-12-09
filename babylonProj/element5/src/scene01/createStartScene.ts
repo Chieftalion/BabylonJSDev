@@ -20,7 +20,7 @@ function createStarfield(scene: Scene) {
 
   const starMaster = MeshBuilder.CreateSphere("star", { diameter: 0.5, segments: 4 }, scene);
   const starMat = new StandardMaterial("starMat", scene);
-  starMat.emissiveColor = new Color3(1, 1, 1); // White Glow
+  starMat.emissiveColor = new Color3(1, 1, 1);
   starMat.disableLighting = true;
   starMaster.material = starMat;
   starMaster.isVisible = false;

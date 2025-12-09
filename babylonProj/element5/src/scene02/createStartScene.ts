@@ -46,7 +46,7 @@ function createSun(scene: Scene) {
 
   const sunMesh = MeshBuilder.CreateSphere("sunMesh", { diameter: 4, segments: 32 }, scene);
   const sunMat = new StandardMaterial("sunMat", scene);
-  sunMat.emissiveColor = new Color3(1, 0.8, 0); // Yellow Glow
+  sunMat.emissiveColor = new Color3(1, 0.8, 0);
   sunMat.diffuseColor = new Color3(0, 0, 0);
   sunMesh.material = sunMat;
 
