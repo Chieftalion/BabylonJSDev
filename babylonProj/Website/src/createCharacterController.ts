@@ -31,11 +31,9 @@ export function createCharacterController(scene: Scene, camera: ArcRotateCamera,
       shadowGenerator.addShadowCaster(mesh, true);
       camera.lockedTarget = mesh;
 
-      // Physics Body (Capsule)
       let playerAgg = new PhysicsAggregate(mesh, PhysicsShapeType.CAPSULE, { mass: 1, friction: 0, restitution: 0 }, scene);
       playerAgg.body.setMassProperties({ inertia: new Vector3(0, 0, 0) }); // Lock rotation
 
-      // Animations
       skeleton.animationPropertiesOverride = new AnimationPropertiesOverride();
       skeleton.animationPropertiesOverride.enableBlending = true;
       skeleton.animationPropertiesOverride.blendingSpeed = 0.05;
@@ -51,7 +49,6 @@ export function createCharacterController(scene: Scene, camera: ArcRotateCamera,
         let keydown = false;
         const speed = 6.0;
 
-        // Camera Directions
         const forward = camera.getForwardRay().direction;
         forward.y = 0;
         forward.normalize();
@@ -67,12 +64,10 @@ export function createCharacterController(scene: Scene, camera: ArcRotateCamera,
         if (keyDownMap["KeyD"] || keyDownMap["ArrowRight"]) { moveVector.addInPlace(right); keydown = true; }
         if (keyDownMap["KeyA"] || keyDownMap["ArrowLeft"]) { moveVector.subtractInPlace(right); keydown = true; }
 
-        // Physics Movement
         if (keydown && moveVector.length() > 0) {
           moveVector.normalize().scaleInPlace(speed);
           playerAgg.body.setLinearVelocity(new Vector3(moveVector.x, -4, moveVector.z));
 
-          // Rotate Body
           const targetRotation = Math.atan2(moveVector.x, moveVector.z);
           mesh.rotationQuaternion = Quaternion.Slerp(
             mesh.rotationQuaternion || Quaternion.Identity(),
@@ -83,7 +78,6 @@ export function createCharacterController(scene: Scene, camera: ArcRotateCamera,
           playerAgg.body.setLinearVelocity(new Vector3(0, -4, 0));
         }
 
-        // Animation
         let desiredAnim = keydown ? walkRange : idleRange;
         if (currentAnim !== desiredAnim) {
           currentAnim = desiredAnim;

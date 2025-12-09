@@ -22,7 +22,6 @@ import {
   Color4,
   ParticleSystem
 } from "@babylonjs/core";
-//import { create } from "domain";
 
 function createTerrain(scene: Scene) {
   const largeGroundMat = new StandardMaterial("largeGroundMat");
@@ -79,25 +78,20 @@ function createSky(scene: Scene) {
 }
 
 function createBox(style: number) {
-  //style 1 small style 2 semi detatched
   const boxMat = new StandardMaterial("boxMat");
-  const faceUV: Vector4[] = []; // faces for small house
+  const faceUV: Vector4[] = [];
   if (style == 1) {
     boxMat.diffuseTexture = new Texture("/assets/textures/cubehouse.png");
-    faceUV[0] = new Vector4(0.5, 0.0, 0.75, 1.0); //rear face
-    faceUV[1] = new Vector4(0.0, 0.0, 0.25, 1.0); //front face
-    faceUV[2] = new Vector4(0.25, 0, 0.5, 1.0); //right side
-    faceUV[3] = new Vector4(0.75, 0, 1.0, 1.0); //left side
-    // faceUV[4] would be for bottom but not used
-    // faceUV[5] would be for top but not used
+    faceUV[0] = new Vector4(0.5, 0.0, 0.75, 1.0);
+    faceUV[1] = new Vector4(0.0, 0.0, 0.25, 1.0);
+    faceUV[2] = new Vector4(0.25, 0, 0.5, 1.0);
+    faceUV[3] = new Vector4(0.75, 0, 1.0, 1.0);
   } else {
     boxMat.diffuseTexture = new Texture("/assets/textures/semihouse.png");
-    faceUV[0] = new Vector4(0.6, 0.0, 1.0, 1.0); //rear face
-    faceUV[1] = new Vector4(0.0, 0.0, 0.4, 1.0); //front face
-    faceUV[2] = new Vector4(0.4, 0, 0.6, 1.0); //right side
-    faceUV[3] = new Vector4(0.4, 0, 0.6, 1.0); //left side
-    // faceUV[4] would be for bottom but not used
-    // faceUV[5] would be for top but not used
+    faceUV[0] = new Vector4(0.6, 0.0, 1.0, 1.0);
+    faceUV[1] = new Vector4(0.0, 0.0, 0.4, 1.0);
+    faceUV[2] = new Vector4(0.4, 0, 0.6, 1.0);
+    faceUV[3] = new Vector4(0.4, 0, 0.6, 1.0);
   }
 
   const box = MeshBuilder.CreateBox("box", {
@@ -139,25 +133,19 @@ function createHouse(scene: Scene, style: number) {
     false,
     true
   );
-  // last true allows combined mesh to use multiple materials
   return house;
 }
 
 function createHouses(scene: Scene, style: number) {
-  //Start by locating one each of the two house types then add others
 
   if (style == 1) {
-    // show 1 small house
     createHouse(scene, 1);
   }
   if (style == 2) {
-    // show 1 large house
     createHouse(scene, 2);
   }
   if (style == 3) {
-    // show estate
     const houses: Nullable<Mesh>[] = [];
-    // first two houses are original meshes
     houses[0] = createHouse(scene, 1);
     houses[0]!.rotation.y = -Math.PI / 10;
     houses[0]!.position.x = -3;
@@ -169,7 +157,7 @@ function createHouses(scene: Scene, style: number) {
     houses[1]!.position.z = 2.5;
 
     const ihouses: InstancedMesh[] = [];
-    const places: number[][] = []; //each entry is an array [house type, rotation, x, z]
+    const places: number[][] = [];
 
     // on north (western)
     places.push([2, -Math.PI / 4, 7.5, 7.25]);
@@ -229,7 +217,6 @@ function createHouses(scene: Scene, style: number) {
       ihouses[i].position.z = places[i][3];
     }
   }
-  // nothing returned by this function
 }
 
 function createTrees(scene: Scene) {
@@ -241,24 +228,19 @@ function createTrees(scene: Scene) {
     scene
   );
 
-  for (let i = 0; i < 2000; i++) { // Increased count slightly to fill gaps
+  for (let i = 0; i < 2000; i++) {
     const x = Math.random() * 100 - 50;
     const z = Math.random() * 100 - 50;
 
-    // 1. CENTER FOUNTAIN
     if (Math.abs(x) < 2.5 && Math.abs(z) < 2.5) continue;
 
-    // 2. WEST ROAD (Horizontal)
     if (x < 0 && z > -1.5 && z < 5.5) continue;
 
-    // 3. SOUTH ROAD (Vertical)
     if (z < 0 && x > 0 && x < 6) continue;
 
-    // 4. DIAGONAL ROAD (Top Right)
     if (x > 0 && z > 0 && Math.abs(x - z) < 3.5) continue;
 
 
-    // --- PLANT TREE ---
     const tree = new Sprite("tree", spriteManagerTrees);
     tree.position.x = x;
     tree.position.z = z;
@@ -273,7 +255,7 @@ function createTrees(scene: Scene) {
 function createHemisphericLight(scene: Scene) {
   const light = new HemisphericLight(
     "light",
-    new Vector3(2, 1, 0), // move x pos to direct shadows
+    new Vector3(2, 1, 0),
     scene
   );
   light.intensity = 0.8;
@@ -291,7 +273,6 @@ function createFountain(scene: Scene) {
     new Vector3(0.4, 0.2, 0),
     new Vector3(0.4, 0.05, 0),
     new Vector3(0.05, 0.1, 0),
-    // FIX: Lowered these Y values to make the pipe shorter
     new Vector3(0.05, 0.5, 0),
     new Vector3(0.15, 0.6, 0)
   ];
@@ -300,7 +281,6 @@ function createFountain(scene: Scene) {
   fountain.position.x = 3.5;
   fountain.position.z = 4;
 
-  // FIX: Reduced scaling from 3 to 1.5
   fountain.scaling = new Vector3(1.5, 1.5, 1.5);
 
   const stoneMat = new StandardMaterial("stone", scene);
@@ -315,7 +295,6 @@ function createFountainWater(scene: Scene, fountain: Mesh) {
 
   particleSystem.particleTexture = new Texture("https://raw.githubusercontent.com/BabylonJS/Babylon.js/master/packages/tools/playground/public/textures/flare.png", scene);
 
-  // Emitter location (Top of fountain)
   particleSystem.emitter = new Vector3(fountain.position.x, fountain.position.y + 1, fountain.position.z);
   particleSystem.minEmitBox = new Vector3(-0.05, 0, -0.05);
   particleSystem.maxEmitBox = new Vector3(0.05, 0, 0.05);
@@ -371,7 +350,7 @@ export default function createStartScene(engine: Engine) {
   scene.fogColor = new Color3(0.8, 0.9, 1.0);
 
   let ground = createGround(scene);
-  ground.receiveShadows = true; // Important!
+  ground.receiveShadows = true;
 
   let sky = createSky(scene);
   let lightHemispheric = createHemisphericLight(scene);

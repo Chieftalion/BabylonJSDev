@@ -60,21 +60,18 @@ function importPlayerMesh(scene: Scene, camera: ArcRotateCamera, shadowGenerator
           keydown = true;
         }
 
-        // LEFT
         if (keyDownMap["KeyA"] || keyDownMap["ArrowLeft"]) {
           mesh.position.x -= speed;
           mesh.rotation.y = 3 * Math.PI / 2;
           keydown = true;
         }
 
-        // BACKWARD
         if (keyDownMap["KeyS"] || keyDownMap["ArrowDown"]) {
           mesh.position.z -= speed;
           mesh.rotation.y = Math.PI;
           keydown = true;
         }
 
-        // RIGHT
         if (keyDownMap["KeyD"] || keyDownMap["ArrowRight"]) {
           mesh.position.x += speed;
           mesh.rotation.y = Math.PI / 2;
@@ -137,7 +134,6 @@ function createFixedCamera(scene: Scene) {
 }
 
 function createObstacleCourse(scene: Scene, shadowGenerator: ShadowGenerator) {
-  // Shared Materials
   const woodMat = new StandardMaterial("woodMat", scene);
   woodMat.diffuseTexture = new Texture("/assets/textures/wood.jpg", scene);
 
@@ -145,9 +141,8 @@ function createObstacleCourse(scene: Scene, shadowGenerator: ShadowGenerator) {
   crateMat.diffuseTexture = new Texture("/assets/textures/cubehouse.png", scene);
 
   const wallMat = new StandardMaterial("wallMat", scene);
-  wallMat.diffuseColor = new Color3(0.5, 0.5, 0.6); // Concrete Grey
+  wallMat.diffuseColor = new Color3(0.5, 0.5, 0.6);
 
-  // --- PHASE 1: THE SLALOM (Z: 5 to 35) ---
   const spriteManagerPalms = new SpriteManager("palmManager", "/assets/sprites/palmtree.png", 2000, { width: 512, height: 1024 }, scene);
 
   for (let i = 0; i < 10; i++) {
@@ -167,10 +162,10 @@ function createObstacleCourse(scene: Scene, shadowGenerator: ShadowGenerator) {
   shadowGenerator.addShadowCaster(plank);
 
   const cratePositions = [
-    new Vector3(-3, 1, 65), // Left
-    new Vector3(3, 1, 70),  // Right
-    new Vector3(-3, 1, 75), // Left
-    new Vector3(0, 1, 80),  // Center block
+    new Vector3(-3, 1, 65),
+    new Vector3(3, 1, 70),
+    new Vector3(-3, 1, 75),
+    new Vector3(0, 1, 80),
   ];
 
   cratePositions.forEach((pos, index) => {
@@ -184,13 +179,13 @@ function createObstacleCourse(scene: Scene, shadowGenerator: ShadowGenerator) {
   const courseLength = 100;
 
   const wallLeft = MeshBuilder.CreateBox("wallLeft", { width: 1, height: 6, depth: courseLength }, scene);
-  wallLeft.position = new Vector3(-8, 3, 40); // Sit to the left (X=-8)
+  wallLeft.position = new Vector3(-8, 3, 40);
   wallLeft.material = wallMat;
   wallLeft.receiveShadows = true;
   shadowGenerator.addShadowCaster(wallLeft);
 
   const wallRight = MeshBuilder.CreateBox("wallRight", { width: 1, height: 6, depth: courseLength }, scene);
-  wallRight.position = new Vector3(8, 3, 40); // Sit to the right (X=8)
+  wallRight.position = new Vector3(8, 3, 40);
   wallRight.material = wallMat;
   wallRight.receiveShadows = true;
   shadowGenerator.addShadowCaster(wallRight);
@@ -198,7 +193,7 @@ function createObstacleCourse(scene: Scene, shadowGenerator: ShadowGenerator) {
   const finishLine = MeshBuilder.CreateGround("finish", { width: 14, height: 2 }, scene);
   finishLine.position = new Vector3(0, 0.02, 85);
   const finishMat = new StandardMaterial("finishMat", scene);
-  finishMat.diffuseColor = new Color3(0, 1, 0); // Bright Green
+  finishMat.diffuseColor = new Color3(0, 1, 0);
   finishLine.material = finishMat;
 }
 
@@ -208,7 +203,7 @@ export default function createStartScene(engine: Engine) {
   let ground = MeshBuilder.CreateGround("ground", { width: 100, height: 100 }, scene);
   let groundMat = new StandardMaterial("groundMat", scene);
   groundMat.diffuseColor = new Color3(0.5, 0.5, 0.5);
-  groundMat.specularColor = new Color3(0, 0, 0); // Matte ground
+  groundMat.specularColor = new Color3(0, 0, 0);
   ground.material = groundMat;
   ground.receiveShadows = true;
 

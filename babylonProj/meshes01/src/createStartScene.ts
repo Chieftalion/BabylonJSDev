@@ -19,10 +19,9 @@ import {
   ShadowGenerator,
   Texture,
 } from "@babylonjs/core";
-import { create } from "domain";
 
 function getMaterial(scene: Scene) {
-  scene.ambientColor = new Color3(1, 1, 1); // Make ambient light white so we see colors clearly
+  scene.ambientColor = new Color3(1, 1, 1);
   const myMaterial = new StandardMaterial("myMaterial", scene);
 
   const grassTexture = new Texture("../assets/textures/grass.jpg", scene);
@@ -37,18 +36,17 @@ function getMaterial(scene: Scene) {
 
 function getShinyMaterial(scene: Scene) {
   const mat = new StandardMaterial("shinyMat", scene);
-  mat.diffuseColor = new Color3(1, 0, 0); // Red
-  mat.specularColor = new Color3(1, 1, 1); // White sharp reflection (Shiny!)
+  mat.diffuseColor = new Color3(1, 0, 0);
+  mat.specularColor = new Color3(1, 1, 1);
   return mat;
 }
 
 function createHemisphereLight(scene: Scene) {
   const light: HemisphericLight = new HemisphericLight("light", new Vector3(1, 10, 0), scene);
 
-  light.intensity = 0.5; // Slightly brighter
-  light.diffuse = new Color3(0.6, 0.8, 1); // Light Blue (Sky color)
-  light.groundColor = new Color3(0.2, 0.2, 0.2); // Dark Grey (Ground reflection)
-  // light.specular = new Color3(1, 1, 1); // Keep as is
+  light.intensity = 0.5;
+  light.diffuse = new Color3(0.6, 0.8, 1);
+  light.groundColor = new Color3(0.2, 0.2, 0.2);
 
   return light;
 }
@@ -183,14 +181,14 @@ function createLight(scene: Scene) {
 
 
 
-function createGround(scene: Scene, material: any) { // Pass material here!
+function createGround(scene: Scene, material: any) {
   let ground = MeshBuilder.CreateGround(
     "ground",
-    { width: 50, height: 50 }, // Make it HUGE (50x50)
+    { width: 50, height: 50 },
     scene,
   );
   ground.position.x = 0;
-  ground.material = material; // Apply the grass texture
+  ground.material = material;
   return ground;
 }
 

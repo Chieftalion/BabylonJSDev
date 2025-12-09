@@ -11,14 +11,13 @@ import * as GUI from "@babylonjs/gui";
 
 export interface SceneData {
   scene: Scene;
-  ground?: Mesh | PhysicsAggregate; // Can be either
+  ground?: Mesh | PhysicsAggregate;
   skybox?: Mesh;
   camera?: Camera | ArcRotateCamera;
   light?: HemisphericLight | PointLight;
-  stars?: any; // For the star systems
-  planets?: any[]; // For the solar system list
+  stars?: any;
+  planets?: any[];
 
-  // GUI specific
   advancedTexture?: GUI.AdvancedDynamicTexture;
   button1?: GUI.Button;
   button2?: GUI.Button;

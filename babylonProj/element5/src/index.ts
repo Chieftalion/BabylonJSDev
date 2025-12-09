@@ -38,7 +38,6 @@ export default function setSceneIndex(index: number) {
   if (scenes[index] && scenes[index].scene && scenes[index].scene.activeCamera) {
     scenes[index].scene.activeCamera.attachControl(canvas, true);
   }
-  // -------------------------------
 
   eng.runRenderLoop(() => {
     if (scenes[index] && scenes[index].scene) {

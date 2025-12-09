@@ -15,7 +15,6 @@ let eng = new Engine(canvas, true, {}, true);
 
 (async function main() {
   const startScene = await createStartScene(eng);
-  // gui(startScene.scene); // Removed to hide the menu
   eng.runRenderLoop(() => {
     startScene.scene.render();
   });
